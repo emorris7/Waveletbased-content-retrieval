@@ -16,13 +16,16 @@ def find_images(image_base, query_image_name, num_matches):
         # TODO: change weights
         image.image_distance(query_image, weights, 1, 1, 1)
     image_base.sort(key=lambda img: img.distance)
+    for img in image_base:
+        print(img.image_name, img.distance)
     first_processed = 0
     # find first image that was processed (whose distance was computed) in sorted list
     print("Finding the ", num_matches, " best image matches")
     for img in image_base:
         if img.distance >= 0:
             break
-        first_processed += first_processed
+        first_processed += 1
+    print(first_processed)
     # if not enough images were processed, output random (or maybe throw exception in future)
     if num_matches + first_processed - 1 >= len(image_base):
         extra = num_matches + first_processed - len(image_base)

@@ -9,7 +9,7 @@ class Image:
 
     def __init__(self, image_name):
         self.image_name = image_name
-        print(image_name)
+        # print(image_name)
         # TODO: CHANGE
         c1, c2, c3 = self.create_axes("/home/emily/Documents/2021/CSC5029Z/MiniProject/practice_folder/" + image_name)
         # Feature is array [standard_deviation, dA5, dH5, dV5, dD5, dA4, dH4, dV4, dD4]
@@ -104,10 +104,12 @@ class Image:
         # filter based on standard deviation
         c1_std, c2_std, c3_std = self.c1_feature[0], self.c2_feature[0], self.c3_feature[0]
         c1q_std, c2q_std, c3q_std = query_image.c1_feature[0], query_image.c2_feature[0], query_image.c3_feature[0]
-        if ((c1q_std < (beta * c1_std) or c1q_std > (c1_std / beta)) and (
-                c2q_std < (beta * c2_std) or c2q_std > (c2_std / beta)) or c3q_std < (
-                beta * c3_std) or c3q_std > (c3_std / beta)):
+        if ((c1_std < (beta * c1q_std) or c1_std > (c1q_std / beta)) and (
+                c2_std < (beta * c2q_std) or c2_std > (c2q_std / beta)) or c3_std < (
+                beta * c3q_std) or c3_std > (c3q_std / beta)):
             # no longer consider image
+            # print(c1_std, c2_std, c3_std)
+            # print(c1q_std, c2q_std, c3q_std)
             self.distance = -1
         else:
             total_distance = 0

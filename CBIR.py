@@ -3,11 +3,10 @@ import sys
 
 from ProcessImage import Image
 
-
 # Returns the k best images that match the query image
 def find_images(image_base, query_image_name, num_matches):
     query_image = Image(query_image_name)
-    # weights for distance calculation
+    # weights for distance calculation, weights = [w11, w12, w21, w22]
     # TODO: perhaps change weights
     weights = [1, 1, 1, 1]
     print("Calculating distances")
@@ -44,11 +43,11 @@ def main():
         folder = sys.argv[1]
         # TODO: error if not image
         print("Loading image base...")
-        #count = 0
+        # count = 0
         for filename in os.listdir(folder):
             image_base.append(Image(filename))
-            #count += 1
-            #print(count)
+            # count += 1
+            # print(count)
         print("Finished loading images")
         print(len(image_base))
 

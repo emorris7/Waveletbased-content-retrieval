@@ -11,7 +11,7 @@ class Image:
         self.image_name = image_name
         print(image_name)
         # TODO: CHANGE
-        c1, c2, c3 = self.create_axes("/home/emily/Documents/2021/CSC5029Z/MiniProject/JPEGImages/" + image_name)
+        c1, c2, c3 = self.create_axes("/home/emily/Documents/2021/CSC5029Z/MiniProject/practice_folder/" + image_name)
         # Feature is array [standard_deviation, dA5, dH5, dV5, dD5, dA4, dH4, dV4, dD4]
         self.c1_feature = self.create_features(c1)
         self.c2_feature = self.create_features(c2)
@@ -39,7 +39,7 @@ class Image:
         # calculate the axes, values will be real numbers (not necessarily whole numbers)
         for i in range(width):
             for j in range(height):
-                c1[i][j] = (red[i][j] + green[i][j] + blue[i][j]) / 3
+                c1[i][j] = (int(red[i][j]) + int(green[i][j]) + int(blue[i][j])) / 3
                 c2[i][j] = (red[i][j] + (255 - blue[i][j])) / 2
                 c3[i][j] = (red[i][j] + 2 * (255 - green[i][j]) + blue[i][j]) / 4
         return c1, c2, c3
@@ -67,6 +67,7 @@ class Image:
     def create_features(self, color_axis):
         # leave mode as symmetric, use debauchie 2 wavelets
         # TODO: Potentially change wavelet type and signal extension method
+        # dwt4 = pywt.wavedec2(color_axis, 'db2', mode='periodization', level=4)
         dwt4 = pywt.wavedec2(color_axis, 'db2', level=4)
         # approximation and detail matrices for level 4
         dA4 = dwt4[0]

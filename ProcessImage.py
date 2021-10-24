@@ -7,16 +7,25 @@ import pywt
 
 class Image:
 
-    def __init__(self, image_name):
-        self.image_name = image_name
-        # print(image_name)
-        # TODO: CHANGE
-        c1, c2, c3 = self.create_axes("/home/emily/Documents/2021/CSC5029Z/MiniProject/practice_folder/" + image_name)
-        # Feature is array [standard_deviation, dA5, dH5, dV5, dD5, dA4, dH4, dV4, dD4]
-        self.c1_feature = self.create_features(c1)
-        self.c2_feature = self.create_features(c2)
-        self.c3_feature = self.create_features(c3)
-        self.distance = 0
+    # Take in a variable number of parameters to allow for loading features from json
+    # [image_name, c1_feature, c2_feature, c3_feature, distance]
+    def __init__(self, *args):
+        if len(args) == 1:
+            self.image_name = args[0]
+            # print(image_name)
+            # TODO: CHANGE
+            c1, c2, c3 = self.create_axes("/home/emily/Documents/2021/CSC5029Z/MiniProject/practice_folder/" + args[0])
+            # Feature is array [standard_deviation, dA5, dH5, dV5, dD5, dA4, dH4, dV4, dD4]
+            self.c1_feature = self.create_features(c1)
+            self.c2_feature = self.create_features(c2)
+            self.c3_feature = self.create_features(c3)
+            self.distance = 0
+        else:
+            self.image_name = args[0]
+            self.c1_feature = args[1]
+            self.c2_feature = args[2]
+            self.c3_feature = args[3]
+            self.distance = args[4]
 
     # Takes in an image name, resizes image and extracts 3 color axes using the formulas:
     # C1 = (R+G+B)/3

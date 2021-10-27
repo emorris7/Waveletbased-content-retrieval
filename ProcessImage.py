@@ -3,8 +3,6 @@ import numpy as np
 import pywt
 
 
-# TODO: saving features to JSON
-
 class Image:
 
     # Take in a variable number of parameters to allow for loading features from json
@@ -12,9 +10,9 @@ class Image:
     def __init__(self, *args):
         if len(args) == 1:
             self.image_name = args[0]
-            # print(image_name)
+            # print(args[0])
             # TODO: CHANGE
-            c1, c2, c3 = self.create_axes("/home/emily/Documents/2021/CSC5029Z/MiniProject/practice_folder/" + args[0])
+            c1, c2, c3 = self.create_axes("/home/emily/Documents/2021/CSC5029Z/MiniProject/Coral1-k/" + args[0])
             # Feature is array [standard_deviation, dA5, dH5, dV5, dD5, dA4, dH4, dV4, dD4]
             self.c1_feature = self.create_features(c1)
             self.c2_feature = self.create_features(c2)
@@ -83,6 +81,19 @@ class Image:
         (dH4, dV4, dD4) = dwt4[1]
         standard_deviation = dA4.std()
         return standard_deviation, dA4, dH4, dV4, dD4
+
+    def filter_standard_deviation(self, query_image, percent=50):
+        beta = 1 - percent / 100
+        # filter based on standard deviation
+        c1_std, c2_std, c3_std = self.c1_feature[0], self.c2_feature[0], self.c3_feature[0]
+        c1q_std, c2q_std, c3q_std = query_image.c1_feature[0], query_image.c2_feature[0], query_image.c3_feature[0]
+        if ((c1_std < (beta * c1q_std) or c1_std > (c1q_std / beta)) and (
+                c2_std < (beta * c2q_std) or c2_std > (c2q_std / beta)) or c3_std < (
+                beta * c3q_std) or c3_std > (c3q_std / beta)):
+            # no longer consider image
+            # print(c1_std, c2_std, c3_std)
+            # print(c1q_std, c2q_std, c3q_std)
+            self.distance = -1
 
     # Filter for standard deviation before
     # TODO: Filter based on level-5

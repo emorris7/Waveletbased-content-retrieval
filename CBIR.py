@@ -6,25 +6,28 @@ from ProcessImage import Image
 
 
 # Returns the k best images that match the query image
-def find_images(image_base, query_image_name, num_matches):
+# weights for distance calculation, weights = [w11, w12, w21, w22]
+def find_images(image_base, query_image_name, num_matches, level, long, weights=[1, 1, 1, 1], wc1=1, wc2=1, wc3=1,
+                threshold_dwt=0.5, threshold=50):
     start_time = time.perf_counter()
-    query_image = Image(query_image_name)
-    # weights for distance calculation, weights = [w11, w12, w21, w22]
-    # TODO: perhaps change weights
-    weights = [1, 1, 1, 1]
+    query_image = Image(query_image_name, level, long)
     print("Calculating distances")
-    for image in image_base:
-        # other weights
-        # TODO: change weights
-        image.image_distance(query_image, weights, 1, 1, 1)
+    # using additional dwt level check
+    if long:
+        distance_long(image_base, query_image, weights, wc1, wc2, wc3, threshold_dwt, threshold)
+    else:
+        distance_short(image_base, query_image, weights, wc1, wc2, wc3, threshold)
+    # order based on distance
     image_base.sort(key=lambda img: img.distance)
-    # for img in image_base:
-    #     print(img.image_name, img.distance)
+
+    for image_prac in image_base:
+        print(image_prac.image_name, image_prac.distance)
+
     first_processed = 0
     # find first image that was processed (whose distance was computed) in sorted list
     print("Finding the ", num_matches, " best image matches")
-    for img in image_base:
-        if img.distance >= 0:
+    for image in image_base:
+        if image.distance >= 0:
             break
         first_processed += 1
     print(first_processed)
@@ -40,13 +43,31 @@ def find_images(image_base, query_image_name, num_matches):
         return image_base[first_processed:first_processed + num_matches:], compute_time
 
 
-def distance_long(image_base, query_image, weights=[1, 1, 1, 1], wc1=1, wc2=1, wc3=1, threshold_dwt = 0.5, threshold=50):
+def distance_long(image_base, query_image, weights, wc1, wc2, wc3, threshold_dwt, threshold):
     for image in image_base:
-        # other weights
-        # TODO: change weights
-        image.image_distance(query_image, weights, wc1, wc2, wc3, threshold)
+        image.filter_standard_deviation(query_image, threshold)
+        # filter out images that were within the standard deviation
+        # compute difference of level i+1 dwt components
+        if image.distance != -1:
+            image.image_distance(query_image, weights, wc1, wc2, wc3)
+    max_distance = max(x.distance for x in image_base)
+    # filter out images which are too far away in this coarser representation
+    for image in image_base:
+        if image.distance > threshold_dwt * max_distance:
+            image.distance = -1
+    # compute final distance based on level i dwt
+    for image in image_base:
+        if image.distance != -1:
+            image.image_distance(query_image, weights, wc1, wc2, wc3, 5)
 
-# def distance_short(image_base, query_image, weights=[1, 1, 1, 1], wc1=1, wc2=1, wc3=1, threshold=50):
+
+def distance_short(image_base, query_image, weights, wc1, wc2, wc3, threshold):
+    for image in image_base:
+        image.filter_standard_deviation(query_image, threshold)
+        # filter out images that were within the standard deviation
+        # compute difference of level i dwt components
+        if image.distance != -1:
+            image.image_distance(query_image, weights, wc1, wc2, wc3)
 
 
 def main():
@@ -58,11 +79,14 @@ def main():
         folder = sys.argv[1]
         # TODO: error if not image
         print("Loading image base...")
+        level = 4
+        long = True
         count = 0
         # Timer for creating database of features
         start_time = time.perf_counter()
         for filename in os.listdir(folder):
-            image_base.append(Image(filename))
+            # computing level 4 dwt
+            image_base.append(Image(filename, level, long))
             count += 1
             print(count)
         end_time = time.perf_counter()
@@ -83,7 +107,7 @@ def main():
                           len(image_base))
                 else:
                     print("Beginning image retrieval")
-                    matching_images, time_taken = find_images(image_base, option, matches)
+                    matching_images, time_taken = find_images(image_base, option, matches, level, long)
                     print("Time taken:", time_taken)
                     print("Best matching images")
                     for img in matching_images:

@@ -1,5 +1,4 @@
 import json
-import os
 from json import JSONEncoder
 
 import numpy as np
@@ -21,10 +20,11 @@ def image_decoder(json_dict):
                  json_dict["distance"])
 
 
-def save_to_json(filename, image_base, time_taken):
+def save_to_json(filename, image_base, time_taken, long_level_string):
     print("Writing image base features to:", filename)
     file = open(filename, 'w')
     file.write(time_taken + "\n")
+    file.write(long_level_string + "\n")
     for image in image_base:
         file.write(json.dumps(image, cls=ImageEncoder) + "\n")
     file.close()
@@ -39,6 +39,8 @@ def load_for_json(filename):
     with open(filename, 'r') as file:
         # time take to encode features first entry in file
         time_taken = file.readline()
+        # level of decomposition used and whether adding composition was used encoded in a string
+        long_level_string = file.readline()
         print("Reading in images")
         for line in file:
             image_base.append(json.loads(line, object_hook=image_decoder))

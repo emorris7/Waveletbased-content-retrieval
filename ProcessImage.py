@@ -4,31 +4,41 @@ import pywt
 
 
 class Image:
-
     # Take in a variable number of parameters to allow for loading features from json
     # long determines whether an extra level of dwt is computed or not
     # level determines the minimum level of dwt that will be done
     # Acceptable inputs are:
+    # TODO: TEST Change back (remove mode and wave)
     # [image_name, level, long] or
     # [image_name, c1_feature, c2_feature, c3_feature, distance]
-    def __init__(self, *args):
-        if len(args) == 3:
-            self.image_name = args[0]
-            level = args[1]
-            long = args[2]
+    def __init__(self, image_name=None, level=None, long=None, mode="periodization", wave="db2", c1_feature=None,
+                 c2_feature=None,
+                 c3_feature=None, distance=None):
+        # TODO TEST CHANGE BACK TO 3
+        if c1_feature is None:
+            self.image_name = image_name
             # TODO: CHANGE
-            c1, c2, c3 = self.create_axes("/home/emily/Documents/2021/CSC5029Z/MiniProject/Coral1-k/" + args[0])
+            c1, c2, c3 = self.create_axes("/home/emily/Documents/2021/CSC5029Z/MiniProject/Coral1-k/" + image_name)
             # Feature is array [standard_deviation, dA5, dH5, dV5, dD5, dA4, dH4, dV4, dD4]
-            self.c1_feature = self.create_features_long(c1, level) if long else self.create_features(c1, level)
-            self.c2_feature = self.create_features_long(c2, level) if long else self.create_features(c2, level)
-            self.c3_feature = self.create_features_long(c3, level) if long else self.create_features(c3, level)
+            self.c1_feature = self.create_features_long(c1, level, mode, wave) if long else self.create_features(c1,
+                                                                                                                 level,
+                                                                                                                 mode,
+                                                                                                                 wave)
+            self.c2_feature = self.create_features_long(c2, level, mode, wave) if long else self.create_features(c2,
+                                                                                                                 level,
+                                                                                                                 mode,
+                                                                                                                 wave)
+            self.c3_feature = self.create_features_long(c3, level, mode, wave) if long else self.create_features(c3,
+                                                                                                                 level,
+                                                                                                                 mode,
+                                                                                                                 wave)
             self.distance = 0
         else:
-            self.image_name = args[0]
-            self.c1_feature = args[1]
-            self.c2_feature = args[2]
-            self.c3_feature = args[3]
-            self.distance = args[4]
+            self.image_name = image_name
+            self.c1_feature = c1_feature
+            self.c2_feature = c2_feature
+            self.c3_feature = c3_feature
+            self.distance = distance
 
     # Takes in an image name, resizes image and extracts 3 color axes using the formulas:
     # C1 = (R+G+B)/3
@@ -62,25 +72,28 @@ class Image:
     # 1. 16x16 sub-matrix of 4-level DWT: M4
     # 2. Standard deviation of 8x8 sub-matrix of M4
     # 3. 8x8 sub-matrix of 5-level DWT: M5
-    def create_features_long(self, color_axis, level):
+    # TODO TEST: Remove  mode and wavelet
+    def create_features_long(self, color_axis, level, mode, wavelet):
         # leave mode as symmetric, use debauchie 2 wavelets
         # TODO: Potentially change wavelet type and signal extension method
-        dwt4 = pywt.wavedec2(color_axis, 'db2', level=level)
+        # dwt4 = pywt.wavedec2(color_axis, 'db2', level=level)
+        dwt4 = pywt.wavedec2(color_axis, wavelet=wavelet, mode=mode, level=level)
         # approximation and detail matrices for level 4
         dA4 = dwt4[0]
         (dH4, dV4, dD4) = dwt4[1]
         standard_deviation = dA4.std()
-        dwt5 = pywt.wavedec2(color_axis, 'db2', level=(level + 1))
+        # dwt5 = pywt.wavedec2(color_axis, 'db2', level=(level + 1))
+        dwt5 = pywt.wavedec2(color_axis, wavelet=wavelet, mode=mode, level=(level + 1))
         # approximation and detail for level 5
         dA5 = dwt5[0]
         (dH5, dV5, dD5) = dwt5[1]
         return standard_deviation, dA5, dH5, dV5, dD5, dA4, dH4, dV4, dD4
 
-    def create_features(self, color_axis, level):
+    def create_features(self, color_axis, level, mode, wavelet):
         # leave mode as symmetric, use debauchie 2 wavelets
         # TODO: Potentially change wavelet type and signal extension method
         # dwt4 = pywt.wavedec2(color_axis, 'db2', mode='periodization', level=4)
-        dwt4 = pywt.wavedec2(color_axis, 'db2', level=level)
+        dwt4 = pywt.wavedec2(color_axis, wavelet=wavelet, mode=mode, level=level)
         # approximation and detail matrices for level 4
         dA4 = dwt4[0]
         (dH4, dV4, dD4) = dwt4[1]
@@ -115,3 +128,13 @@ class Image:
             sub_total = (wc1 * c1_diff) + (wc2 * c2_diff) + (wc3 * c3_diff)
             total_distance += (weights[i] * sub_total)
         self.distance = total_distance
+
+
+class PCAImage:
+    def __init__(self, image_name, feature):
+        self.image_name = image_name
+        self.feature = feature
+        self.distance = 0
+
+    def image_distance(self, query_image):
+        self.distance = np.sum((np.subtract(self.feature, query_image.feature)) ** 2)

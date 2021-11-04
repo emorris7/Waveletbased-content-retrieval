@@ -53,18 +53,20 @@ def load_from_json(filename):
         for line in file:
             image_base.append(json.loads(line, object_hook=image_decoder))
         print("Finished loading image features")
-    return image_base
+    return image_base, time_taken
 
 
 # Load image features, perform PCA and produce a KD_tree for the images
 def load_kd_pca(filename):
-    image_base = load_from_json(filename)
+    image_base, time_taken = load_from_json(filename)
+    start_time = time.perf_counter()
     features = [PCAKD.create_single_feature_image(f) for f in image_base]
     image_names = [img.image_name for img in image_base]
     stand_scaler, pca_images, reduced_data = PCAKD.pca_database(features)
     # https: // scikit - learn.org / stable / modules / generated / sklearn.neighbors.KDTree.html
     tree = KDTree(reduced_data, leaf_size=2)
-    return stand_scaler, pca_images, image_names, tree
+    stop_time = time.perf_counter()
+    return stand_scaler, pca_images, image_names, tree, (float(time_taken) + (stop_time-start_time))
 
 
 def make_json_4_2(folder, level, long):

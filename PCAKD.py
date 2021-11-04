@@ -93,8 +93,7 @@ def extract_features(folder, level=4, long=False):
         data_array.append(create_single_feature(filename, level, long))
         image_names.append(filename)
         count += 1
-        if (count % 50) == 0:
-            print(count)
+        print(count)
     return data_array, image_names
 
 
@@ -112,9 +111,9 @@ def main():
     stand_scaler, pca_images, image_names, tree = [], [], [], []
     if len(sys.argv) <= 1:
         print("Loading image base features from json file")
-        stand_scaler, pca_images, image_names, tree = JsonParsing.load_kd_pca(
-            "/home/emily/Documents/2021/CSC5029Z/MiniProject/Json_Database/Corel1-k_db2_period_no_long.json")
-        print("Feature base created")
+        stand_scaler, pca_images, image_names, tree, time_taken = JsonParsing.load_kd_pca(
+            "Json_Database/Corel1-k_db2_period_no_long.json")
+        print("Feature base created. Time taken to create original feature base: ", time_taken)
     else:
         folder = sys.argv[1]
         start_time = time.perf_counter()
@@ -152,8 +151,8 @@ def main():
                     save_image = input("Save the best matching images (y\\n): ")
                     if save_image.lower() == "y":
                         save_image_name = input("Enter name for image to be saved as: ")
-                        ProcessImage.save_images(option, matching_images, save_image_name, True)
-                        print("Images saved to", save_image_name)
+                        ProcessImage.save_images(option, matching_images, save_image_name + ".png", True)
+                        print("Images saved to", save_image_name + ".png")
             else:
                 print("Invalid match number specified:", matches, ".Enter an integer")
 

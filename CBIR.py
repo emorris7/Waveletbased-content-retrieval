@@ -94,9 +94,11 @@ def main():
     image_base = []
     if len(sys.argv) <= 1:
         print("Loading image base from json file")
-        image_base = JsonParsing.load_from_json(
+        # image_base, time_taken = JsonParsing.load_from_json(
+        #     "Json_Database/Corel1-k_db2_period_no_long.json")
+        image_base, time_taken = JsonParsing.load_from_json(
             "/home/emily/Documents/2021/CSC5029Z/MiniProject/Json_Database/Corel1-k_db2_period_no_long.json")
-        print("Feature base created")
+        print("Feature base created. Time taken to create original feature base: ", time_taken)
     else:
         folder = sys.argv[1]
         # TODO: error if not image
@@ -136,8 +138,8 @@ def main():
                     save_image = input("Save the best matching images (y\\n): ")
                     if save_image.lower() == "y":
                         save_image_name = input("Enter name for image to be saved as: ")
-                        save_images(option, matching_images, save_image_name)
-                        print("Images saved to", save_image_name)
+                        save_images(option, matching_images, save_image_name + ".png")
+                        print("Images saved to", save_image_name + ".png")
             else:
                 print("Invalid match number specified:", matches, ".Enter an integer")
 

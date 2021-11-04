@@ -23,9 +23,9 @@ def main():
     global tree
     if len(sys.argv) <= 1:
         print("Loading image base features from json file")
-        stand_scaler, pca_images, image_names, tree = JsonParsing.load_kd_pca(
-            "/home/emily/Documents/2021/CSC5029Z/MiniProject/Json_Database/Corel1-k_db2_period_no_long.json")
-        print("Feature base created")
+        stand_scaler, pca_images, image_names, tree, time_taken = JsonParsing.load_kd_pca(
+            "Json_Database/Corel1-k_db2_period_no_long.json")
+        print("Feature base created. Time taken to create original feature base: ", time_taken)
     else:
         folder = sys.argv[1]
         start_time = time.perf_counter()
@@ -37,7 +37,7 @@ def main():
         loading_time = end_time - start_time
         print("Finished loading images. Time taken:", loading_time)
 
-    window = tk.Tk()
+    window = tk.Tk("PCAKD-CBIR")
     window.geometry("600x600")
     welcome_label = tk.Label(
         text="WELCOME TO WB-CBIR",
@@ -123,13 +123,14 @@ def main():
 
     def final_save_click(event):
         filename = enter_file.get()
-        enter_file.delete(0, 'end')
-        ProcessImage.save_images(img_name, matching_results, filename + ".png", pca=True)
-        view.pack(pady=20)
-        search_again.pack()
-        final_save.pack_forget()
-        enter_file.pack_forget()
-        filename_label.pack_forget()
+        if filename != "":
+            enter_file.delete(0, 'end')
+            ProcessImage.save_images(img_name, matching_results, filename + ".png", pca=True)
+            view.pack(pady=20)
+            search_again.pack()
+            final_save.pack_forget()
+            enter_file.pack_forget()
+            filename_label.pack_forget()
 
     def view_click(event):
         ProcessImage.show_images(img_name, matching_results, pca=True)

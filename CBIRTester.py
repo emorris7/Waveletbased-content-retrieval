@@ -332,14 +332,68 @@ def test_wavelet(folder):
             file.close()
 
 
-def calc_rp(query_name, returned_results):
+def test_precision(folder):
+    level = 4
+    long = False
+    image_base = []
+    count = 0
+    for filename in os.listdir(folder):
+        # computing level 4 dwt
+        image_base.append(Image(image_name=filename, level=level, long=long))
+        count += 1
+        if count % 100 == 0:
+            print(count)
+    print("Finished loading")
+
+    count = 0
+    num_per_class = 100
+    num_matches = 20
+    total = {"0": 0, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}
+    max_dict = {"0": 0, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}
+    min_dict = {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1, "8": 1, "9": 1}
+
+    for filename in os.listdir(folder):
+        found, time_taken, time_taken_p = find_images(image_base=image_base,
+                                                      query_image_name=filename, num_matches=num_matches, level=level,
+                                                      long=long)
+
+        # record precision
+        precision = calc_rp(filename, found, num_matches)
+        total[filename[0]] += precision
+        max_dict[filename[0]] = max(precision, max_dict[filename[0]])
+        min_dict[filename[0]] = min(precision, min_dict[filename[0]])
+
+        count += 1
+        if count % 50 == 0:
+            print(count)
+
+    # write results to a file
+    file = open("basic_precision_20.txt", 'w')
+    total_average = 0
+    for key in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+        average = total[key] / num_per_class
+        # for calculating the final average time
+        total_average += average
+        # string for class precision
+        out_str = "Class: " + key + " min: " + str(min_dict[key]) + " max: " + str(
+            max_dict[key]) + " average: " + str(average)
+        file.write(out_str + "\n")
+        print("Class", key)
+        print("Min:", min_dict[key])
+        print("Max:", max_dict[key])
+        print("Average:", average)
+    file.write(str(total_average / 10) + "\n")
+    file.close()
+
+
+def calc_rp(query_name, returned_results, num_matches):
     # use start number as class identifier
     start_letter = query_name[0]
     num_correct = 0
     for image in returned_results:
         if image.image_name[0] == start_letter:
             num_correct += 1
-    return num_correct / 100
+    return num_correct / num_matches
 
 
 def main():
@@ -349,8 +403,9 @@ def main():
 
         folder = sys.argv[1]
         # test_thresholds(folder)
-        no_level_test(folder)
+        # no_level_test(folder)
         # test_wavelet(folder)
+        test_precision(folder)
 
 
 if __name__ == '__main__':

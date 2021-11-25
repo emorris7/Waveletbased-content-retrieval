@@ -37,7 +37,7 @@ def main():
         loading_time = end_time - start_time
         print("Finished loading images. Time taken:", loading_time)
 
-    window = tk.Tk("PCAKD-CBIR")
+    window = tk.Tk()
     window.geometry("600x600")
     welcome_label = tk.Label(
         text="WELCOME TO WB-CBIR",

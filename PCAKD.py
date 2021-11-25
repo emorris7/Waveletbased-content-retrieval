@@ -129,7 +129,6 @@ def main():
         if option == "quit":
             break
         else:
-            # TODO: change beta threshold based on number of matches
             matches = input("Enter number of matches to search for: ")
             if matches.isdigit():
                 matches = int(matches)

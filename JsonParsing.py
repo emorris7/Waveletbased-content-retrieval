@@ -71,7 +71,6 @@ def load_kd_pca(filename):
 
 def make_json_4_2(folder, level, long):
     image_base = []
-    # TODO: error if not image
     print("Loading image base...")
     count = 0
     # Timer for creating database of features

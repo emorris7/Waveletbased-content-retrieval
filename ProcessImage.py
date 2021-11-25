@@ -15,11 +15,9 @@ class Image:
     def __init__(self, image_name=None, level=4, long=False, mode="periodization", wave="db2", c1_feature=None,
                  c2_feature=None,
                  c3_feature=None, distance=None):
-        # TODO TEST CHANGE BACK TO 3
         if c1_feature is None:
             self.image_name = image_name
-            # TODO: CHANGE
-            c1, c2, c3 = self.create_axes("/home/emily/Documents/2021/CSC5029Z/MiniProject/Coral1-k/" + image_name)
+            c1, c2, c3 = self.create_axes("Coral1-k/" + image_name)
             # Feature is array [standard_deviation, dA5, dH5, dV5, dD5, dA4, dH4, dV4, dD4]
             self.c1_feature = self.create_features_long(c1, level, mode, wave) if long else self.create_features(c1,
                                                                                                                  level,
@@ -89,8 +87,6 @@ class Image:
     # 2. Standard deviation of sub-matrix of M4
     def create_features(self, color_axis, level, mode, wavelet):
         # leave mode as symmetric, use debauchie 2 wavelets
-        # TODO: Potentially change wavelet type and signal extension method
-        # dwt4 = pywt.wavedec2(color_axis, 'db2', mode='periodization', level=4)
         dwt4 = pywt.wavedec2(color_axis, wavelet=wavelet, mode=mode, level=level)
         # approximation and detail matrices for level 4
         dA4 = dwt4[0]
@@ -148,7 +144,7 @@ def create_grid(image_names):
     h = 11
     extra = num_images % h
     w = (num_images + (h - extra)) // h if extra != 0 else num_images // h
-    imgs = [cv2.imread("/home/emily/Documents/2021/CSC5029Z/MiniProject/Coral1-k/" + filename, cv2.IMREAD_UNCHANGED) for
+    imgs = [cv2.imread("Coral1-k/" + filename, cv2.IMREAD_UNCHANGED) for
             filename
             in image_names]
     resized = [cv2.resize(original, (128, 128), interpolation=cv2.INTER_LINEAR) for original in imgs]

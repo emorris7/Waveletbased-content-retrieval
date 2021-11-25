@@ -13,7 +13,6 @@ def find_images(image_base, query_image_name, num_matches, level=4, long=False, 
                 wc3=1,
                 threshold_dwt=0.5, threshold=70):
     start_time = time.perf_counter()
-    # TODO: TEST remove mode and wave
     query_image = Image(image_name=query_image_name, level=level, long=long, mode=mode, wave=wave)
     # using additional dwt level check
     if long:
@@ -32,7 +31,6 @@ def find_images(image_base, query_image_name, num_matches, level=4, long=False, 
     stop_time = time.perf_counter()
     compute_time = stop_time - start_time
     # if not enough images were processed, output random (or maybe throw exception in future)
-    # TODO CHANGE BACK
     # if num_matches + first_processed - 1 >= len(image_base):
     #     extra = num_matches + first_processed - len(image_base)
     #     print("Not enough processed images, showing", extra, " unprocessed images.")
@@ -94,14 +92,11 @@ def main():
     image_base = []
     if len(sys.argv) <= 1:
         print("Loading image base from json file")
-        # image_base, time_taken = JsonParsing.load_from_json(
-        #     "Json_Database/Corel1-k_db2_period_no_long.json")
         image_base, time_taken = JsonParsing.load_from_json(
-            "/home/emily/Documents/2021/CSC5029Z/MiniProject/Json_Database/Corel1-k_db2_period_no_long.json")
+            "Json_Database/Corel1-k_db2_period_no_long.json")
         print("Feature base created. Time taken to create original feature base: ", time_taken)
     else:
         folder = sys.argv[1]
-        # TODO: error if not image
         print("Loading image base...")
         count = 0
         # Timer for creating database of features
